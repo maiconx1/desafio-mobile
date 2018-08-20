@@ -4,4 +4,5 @@
     <string name="txt_sem_favoritos">Não há favoritos! Adicione para aparecer aqui.</string>
     <string name="desc_local">Local</string>
     <string name="desc_clima">Clima</string>
+    <string name="txt_favoritar">Favoritar</string>
 </resources>
