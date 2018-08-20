@@ -13,12 +13,12 @@
         android:id="@+id/txtVazio"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/margem_superior"
+        android:layout_marginBottom="@dimen/margem_inferior"
         android:layout_marginEnd="@dimen/margem_direita"
         android:layout_marginLeft="@dimen/margem_esquerda"
         android:layout_marginRight="@dimen/margem_direita"
         android:layout_marginStart="@dimen/margem_esquerda"
-        android:layout_marginTop="@dimen/margem_inferior"
+        android:layout_marginTop="@dimen/margem_superior"
         android:gravity="center"
         android:textColor="@color/cor_texto_forte"
         android:textSize="@dimen/tam_titulo"
@@ -29,14 +29,12 @@
         android:id="@+id/lstFavoritos"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="@dimen/margem_superior"
+        android:layout_marginBottom="@dimen/margem_inferior"
         android:layout_marginEnd="@dimen/margem_direita"
         android:layout_marginLeft="@dimen/margem_esquerda"
         android:layout_marginRight="@dimen/margem_direita"
         android:layout_marginStart="@dimen/margem_esquerda"
-        android:layout_marginTop="@dimen/margem_inferior"
-        android:visibility="visible">
-
-    </android.support.v7.widget.RecyclerView>
+        android:layout_marginTop="@dimen/margem_superior"
+        android:visibility="visible"/>
 
 </FrameLayout>
