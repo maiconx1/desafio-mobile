@@ -16,6 +16,8 @@
         </activity>
         <activity android:name=".activities.BuscaActivity">
         </activity>
+        <activity android:name=".activities.DetalhesActivity">
+        </activity>
     </application>
 
 </manifest>
