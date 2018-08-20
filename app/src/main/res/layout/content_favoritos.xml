@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".activities.FavoritosActivity"
+    tools:showIn="@layout/activity_favoritos">
+
+    <TextView
+        android:id="@+id/txtVazio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margem_inferior"
+        android:layout_marginEnd="@dimen/margem_direita"
+        android:layout_marginLeft="@dimen/margem_esquerda"
+        android:layout_marginRight="@dimen/margem_direita"
+        android:layout_marginStart="@dimen/margem_esquerda"
+        android:layout_marginTop="@dimen/margem_superior"
+        android:gravity="center"
+        android:textColor="@color/cor_texto_forte"
+        android:textSize="@dimen/tam_titulo"
+        android:visibility="gone"
+        tools:text="@string/txt_sem_favoritos"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/lstFavoritos"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/margem_inferior"
+        android:layout_marginEnd="@dimen/margem_direita"
+        android:layout_marginLeft="@dimen/margem_esquerda"
+        android:layout_marginRight="@dimen/margem_direita"
+        android:layout_marginStart="@dimen/margem_esquerda"
+        android:layout_marginTop="@dimen/margem_superior"
+        android:visibility="visible"/>
+
+</FrameLayout>
