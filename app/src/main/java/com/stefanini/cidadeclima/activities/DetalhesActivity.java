@@ -104,6 +104,12 @@ public class DetalhesActivity extends AppCompatActivity {
             holder.getTxtClima().setText(clima);
             holder.getTxtTemperatura().setText(temperatura);
             holder.getTxtMaxMin().setText(minMax);
+            holder.getSwpDetalhes().setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    atualizaDetalhes();
+                }
+            });
 
             atualizaDetalhes();
         }
