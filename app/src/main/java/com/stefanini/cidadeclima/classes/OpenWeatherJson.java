@@ -9,8 +9,6 @@ import java.util.ArrayList;
  */
 /*
 {
-"main":{"temp":20.35,"pressure":1025,"humidity":42,"temp_min":20,"temp_max":21},
-"visibility":10000,"wind":{"speed":3.6,"deg":60},"clouds":{"all":0},"dt":1534806000,
 "sys":{"type":1,"id":4472,"message":0.0186,"country":"BR","sunrise":1534756386,"sunset":1534797895},
 "id":3470127,"name":"Belo Horizonte","cod":200}
  */
@@ -19,7 +17,10 @@ public class OpenWeatherJson {
     private ArrayList<Clima> clima;
 
     @SerializedName("main")
-    private ArrayList<Main> main;
+    private Main main;
+
+    @SerializedName("name")
+    private String nome;
 
     public ArrayList<Clima> getClima() {
         return clima;
@@ -29,15 +30,23 @@ public class OpenWeatherJson {
         this.clima = clima;
     }
 
-    public ArrayList<Main> getMain() {
+    public Main getMain() {
         return main;
     }
 
-    public void setMain(ArrayList<Main> main) {
+    public void setMain(Main main) {
         this.main = main;
     }
 
-    private class Main {
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public class Main {
         @SerializedName("temp")
         private double temperatura;
 
@@ -72,7 +81,7 @@ public class OpenWeatherJson {
         }
     }
 
-    private class Clima {
+    public class Clima {
         @SerializedName("id")
         private int id;
 

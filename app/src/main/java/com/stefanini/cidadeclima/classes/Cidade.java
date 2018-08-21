@@ -11,8 +11,8 @@ public class Cidade {
     @SerializedName("id")
     private int id;
 
-    @SerializedName("coord")
-    private ArrayList<String> coordenadas;
+    //@SerializedName("coord")
+    //private ArrayList<String> coordenadas;
 
     @SerializedName("country")
     private String pais;
@@ -24,12 +24,12 @@ public class Cidade {
     private int zoom;
 
     public Cidade() {
-        this(0, new ArrayList<String>(), "", "", 0);
+        this(0/*, new ArrayList<String>()*/, "", "", 0);
     }
 
-    public Cidade(int id, ArrayList<String> coordenadas, String pais, String nome, int zoom) {
+    public Cidade(int id/*, ArrayList<String> coordenadas*/, String pais, String nome, int zoom) {
         this.id = id;
-        this.coordenadas = coordenadas;
+        //this.coordenadas = coordenadas;
         this.pais = pais;
         this.nome = nome;
         this.zoom = zoom;
@@ -49,5 +49,13 @@ public class Cidade {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getPais() {
+        return pais;
+    }
+
+    public int getZoom() {
+        return zoom;
     }
 }

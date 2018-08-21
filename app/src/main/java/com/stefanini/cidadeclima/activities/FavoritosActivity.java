@@ -1,6 +1,8 @@
 package com.stefanini.cidadeclima.activities;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -10,12 +12,21 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import com.google.gson.Gson;
 import com.stefanini.cidadeclima.R;
 import com.stefanini.cidadeclima.adapters.AdapterFavoritos;
 import com.stefanini.cidadeclima.classes.Favorito;
+import com.stefanini.cidadeclima.classes.OpenWeatherJson;
 import com.stefanini.cidadeclima.classes.Singleton;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class FavoritosActivity extends AppCompatActivity {
     private Holder holder;
@@ -66,6 +77,7 @@ public class FavoritosActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        atualizaLista();
     }
 
     class Holder {
