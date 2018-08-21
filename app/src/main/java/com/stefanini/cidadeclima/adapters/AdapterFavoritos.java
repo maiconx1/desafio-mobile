@@ -15,6 +15,7 @@ import com.stefanini.cidadeclima.activities.DetalhesActivity;
 import com.stefanini.cidadeclima.classes.Favorito;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Criado por Maicon Dias Castro em 20/08/2018.
@@ -22,10 +23,12 @@ import java.util.ArrayList;
 public class AdapterFavoritos extends RecyclerView.Adapter<AdapterFavoritos.Holder> {
     private ArrayList<Favorito> favoritos;
     private Activity activity;
+    private Locale locale;
 
     public AdapterFavoritos(ArrayList<Favorito> favoritos, Activity activity) {
         this.favoritos = favoritos;
         this.activity = activity;
+        locale = activity.getResources().getConfiguration().locale;
     }
 
     @NonNull
@@ -49,7 +52,7 @@ public class AdapterFavoritos extends RecyclerView.Adapter<AdapterFavoritos.Hold
         });
         holder.getTxtCidade().setText(favorito.getNome());
         holder.getTxtClima().setText(favorito.getClima());
-        holder.getTxtTemperatura().setText(String.format(activity.getString(R.string.temperatura), favorito.getTemperatura()));
+        holder.getTxtTemperatura().setText(String.format(locale, "%.1f%s", favorito.getTemperatura(), activity.getString(R.string.graus_celsius)));
     }
 
     @Override
@@ -60,11 +63,6 @@ public class AdapterFavoritos extends RecyclerView.Adapter<AdapterFavoritos.Hold
     @Override
     public int getItemCount() {
         return favoritos.size();
-    }
-
-    public void addFavorito(Favorito favorito) {
-        favoritos.add(favorito);
-        notifyItemInserted(getItemCount());
     }
 
     public void setFavoritos(ArrayList<Favorito> favoritos) {
