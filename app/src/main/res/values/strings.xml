@@ -7,4 +7,7 @@
     <string name="txt_favoritar">Favoritar</string>
     <string name="txt_selecione">Selecione a cidade</string>
     <string name="txt_detalhes">Detalhes</string>
+    <string name="temperatura">%.2fºC</string>
+    <string name="txt_favoritos">Climas favoritos</string>
+    <string name="graus_celsius">ºC</string>
 </resources>

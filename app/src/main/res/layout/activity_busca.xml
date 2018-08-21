@@ -7,15 +7,22 @@
     android:orientation="horizontal"
     tools:context=".activities.BuscaActivity">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/lstCidades"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swpCidades"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="@dimen/margem_inferior"
-        android:layout_marginEnd="@dimen/margem_direita"
-        android:layout_marginLeft="@dimen/margem_esquerda"
-        android:layout_marginRight="@dimen/margem_direita"
-        android:layout_marginStart="@dimen/margem_esquerda"
-        android:layout_marginTop="@dimen/margem_superior"/>
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/lstCidades"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="@dimen/margem_inferior"
+            android:layout_marginEnd="@dimen/margem_direita"
+            android:layout_marginLeft="@dimen/margem_esquerda"
+            android:layout_marginRight="@dimen/margem_direita"
+            android:layout_marginStart="@dimen/margem_esquerda"
+            android:layout_marginTop="@dimen/margem_superior"/>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </LinearLayout>

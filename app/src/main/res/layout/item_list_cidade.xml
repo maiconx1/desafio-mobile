@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/lnTudo"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp">
+
     <TextView
+        android:id="@+id/txtCidade"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_margin="@dimen/margem_direita"
         android:text=""
-        android:textSize="@dimen/tam_titulo"
         android:textColor="@color/cor_texto_forte"
-        android:layout_margin="@dimen/margem_direita"/>
+        android:textSize="@dimen/tam_titulo"/>
 
 </android.support.v7.widget.CardView>
