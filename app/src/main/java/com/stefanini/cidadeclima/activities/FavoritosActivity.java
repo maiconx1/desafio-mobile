@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.stefanini.cidadeclima.R;
+import com.stefanini.cidadeclima.classes.Singleton;
 
 public class FavoritosActivity extends AppCompatActivity {
 
@@ -16,6 +17,7 @@ public class FavoritosActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favoritos);
+        Singleton.getInstance().mockFavoritos();
         Holder holder = new Holder();
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
