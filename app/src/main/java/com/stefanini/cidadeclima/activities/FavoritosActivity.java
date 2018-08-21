@@ -31,6 +31,8 @@ public class FavoritosActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        toolbar.setTitle(R.string.txt_favoritos);
+
         holder.getFab().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
