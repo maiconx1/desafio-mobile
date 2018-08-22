@@ -1,6 +1,8 @@
 package com.stefanini.cidadeclima.activities;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -19,6 +21,8 @@ import com.stefanini.cidadeclima.adapters.AdapterFavoritos;
 import com.stefanini.cidadeclima.classes.Favorito;
 import com.stefanini.cidadeclima.classes.ListaOpenWeather;
 import com.stefanini.cidadeclima.classes.Singleton;
+import com.stefanini.cidadeclima.database.FavoritosDbHelper;
+import com.stefanini.cidadeclima.database.FavoritosReaderContract;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -43,6 +47,8 @@ public class FavoritosActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        pegaFavoritos();
+
         toolbar.setTitle(R.string.txt_favoritos);
 
         holder.getFab().setOnClickListener(new View.OnClickListener() {
@@ -54,6 +60,31 @@ public class FavoritosActivity extends AppCompatActivity {
         });
 
         this.favoritos = Singleton.getInstance().getFavoritos();
+    }
+
+    private void pegaFavoritos() {
+        FavoritosDbHelper dbHelper = new FavoritosDbHelper(FavoritosActivity.this);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String[] columns = {
+                FavoritosReaderContract.Favorito.COLUMN_ID,
+                FavoritosReaderContract.Favorito.COLUMN_NOME
+        };
+        String sort = FavoritosReaderContract.Favorito.COLUMN_NOME + " ASC";
+        Cursor cursor = db.query(
+                FavoritosReaderContract.Favorito.TABLE_NAME,
+                columns,
+                null,
+                null,
+                null,
+                null,
+                sort
+        );
+        while(cursor.moveToNext()) {
+            Singleton.getInstance().addFavorito(new Favorito(cursor.getInt(cursor.getColumnIndexOrThrow(FavoritosReaderContract.Favorito.COLUMN_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(FavoritosReaderContract.Favorito.COLUMN_NOME))));
+        }
+        cursor.close();
+        dbHelper.close();
     }
 
     private void atualizaLista() {
