@@ -1,7 +1,8 @@
 package com.stefanini.cidadeclima.activities;
 
-import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -22,13 +23,18 @@ import com.stefanini.cidadeclima.classes.Cidade;
 import com.stefanini.cidadeclima.classes.Favorito;
 import com.stefanini.cidadeclima.classes.OpenWeatherJson;
 import com.stefanini.cidadeclima.classes.Singleton;
+import com.stefanini.cidadeclima.database.FavoritosDbHelper;
+import com.stefanini.cidadeclima.database.FavoritosReaderContract;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -56,14 +62,14 @@ public class DetalhesActivity extends AppCompatActivity {
     private int id = 0;
     private String nome = "";
     private Menu menu;
-    private OpenWeatherJson clima;
-    private Activity activity;
     private ArrayList<Integer> ids;
+    private Locale locale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detalhes);
+        locale = getResources().getConfiguration().locale;
 
         holder = new Holder();
 
@@ -80,7 +86,7 @@ public class DetalhesActivity extends AppCompatActivity {
             Favorito favorito;
             Cidade cidade;
             String json = intent.getStringExtra("FAVORITO");
-            String clima = "Ensolarado", temperatura = "38ºC", minMax = "40ºC / 29ºC";
+            String clima = "", temperatura = "", minMax = "";
             if(json == null || json.isEmpty()) {
                 json = intent.getStringExtra("CIDADE");
                 cidade = gson.fromJson(json, Cidade.class);
@@ -116,12 +122,8 @@ public class DetalhesActivity extends AppCompatActivity {
     }
 
     private void atualizaDetalhes() {
-        ClimaAssincrono assincrono = new ClimaAssincrono(activity, holder);
-        StringBuilder ids = new StringBuilder();
-        for(int id : this.ids) {
-            ids.append((ids.length() == 0) ? "" : ", ").append(id);
-        }
-        assincrono.execute("https://api.openweathermap.org/data/2.5/weather?id=" + ids + "&appid=2bac87e0cb16557bff7d4ebcbaa89d2f&lang=pt&units=metric");// + ids);
+        ClimaAssincrono assincrono = new ClimaAssincrono();
+        assincrono.execute("https://api.openweathermap.org/data/2.5/weather?id=" + ids.get(0) + "&appid=2bac87e0cb16557bff7d4ebcbaa89d2f&lang=pt&units=metric");// + ids);
     }
 
     @Override
@@ -142,10 +144,15 @@ public class DetalhesActivity extends AppCompatActivity {
                 super.onBackPressed();
                 break;
             case R.id.favorito:
+                FavoritosDbHelper dbHelper = new FavoritosDbHelper(DetalhesActivity.this);
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
                 if(favoritado) {
                     for(Favorito fav : Singleton.getInstance().getFavoritos()) {
                         if(fav.getId() == id) {
+                            String where = FavoritosReaderContract.Favorito.COLUMN_ID + " = ?";
+                            String[] args = {String.valueOf(fav.getId())};
                             Singleton.getInstance().getFavoritos().remove(fav);
+                            db.delete(FavoritosReaderContract.Favorito.TABLE_NAME, where, args);
                             menu.getItem(0).setIcon(getResources().getDrawable(R.drawable.ic_heart_outline));
                             break;
                         }
@@ -153,6 +160,10 @@ public class DetalhesActivity extends AppCompatActivity {
                 }
                 else {
                     Singleton.getInstance().addFavorito(new Favorito(id, nome));
+                    ContentValues values = new ContentValues();
+                    values.put(FavoritosReaderContract.Favorito.COLUMN_ID, id);
+                    values.put(FavoritosReaderContract.Favorito.COLUMN_NOME, nome);
+                    db.insert(FavoritosReaderContract.Favorito.TABLE_NAME, null, values);
                     menu.getItem(0).setIcon(getResources().getDrawable(R.drawable.ic_heart));
                 }
                 favoritado = !favoritado;
@@ -162,16 +173,17 @@ public class DetalhesActivity extends AppCompatActivity {
     }
 
     class Holder {
-        private TextView txtCidade, txtClima, txtTemperatura, txtMaxMin;
+        private TextView txtCidade, txtClima, txtTemperatura, txtMaxMin, txtHorario;
         private ImageView imgClima;
         private LinearLayout lnTudo;
         private SwipeRefreshLayout swpDetalhes;
 
-        public Holder () {
+        Holder() {
             txtCidade = findViewById(R.id.txtCidade);
             txtClima = findViewById(R.id.txtClima);
             txtTemperatura = findViewById(R.id.txtTemperatura);
             txtMaxMin = findViewById(R.id.txtMaxMin);
+            txtHorario = findViewById(R.id.txtHorario);
             imgClima = findViewById(R.id.imgClima);
             lnTudo = findViewById(R.id.lnTudo);
             swpDetalhes = findViewById(R.id.swpDetalhes);
@@ -193,6 +205,10 @@ public class DetalhesActivity extends AppCompatActivity {
             return txtMaxMin;
         }
 
+        public TextView getTxtHorario() {
+            return txtHorario;
+        }
+
         public ImageView getImgClima() {
             return imgClima;
         }
@@ -207,21 +223,13 @@ public class DetalhesActivity extends AppCompatActivity {
     }
 
     class ClimaAssincrono extends AsyncTask<String, String, String> {
-        private Activity context;
-        private Holder view;
-
-        ClimaAssincrono(Activity context, Holder view)
-        {
-            this.context = context;
-            this.view = view;
-        }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            if(view != null){
-                view.getLnTudo().setVisibility(View.GONE);
-                view.getSwpDetalhes().setRefreshing(true);
+            if(holder != null){
+                holder.getLnTudo().setVisibility(View.GONE);
+                holder.getSwpDetalhes().setRefreshing(true);
             }
         }
 
@@ -236,13 +244,15 @@ public class DetalhesActivity extends AppCompatActivity {
                 {
                     Gson gson = new Gson();
                     OpenWeatherJson clima = gson.fromJson(s, OpenWeatherJson.class);
-                    view.getLnTudo().setVisibility(View.VISIBLE);
-                    view.getTxtCidade().setText(clima.getNome());
-                    view.getTxtClima().setText(clima.getClima().get(0).getDescricao());
-                    view.getTxtTemperatura().setText(String.format("%.2f%s", clima.getMain().getTemperatura(), getString(R.string.graus_celsius)));
-                    view.getTxtMaxMin().setText(clima.getMain().getTempMaxima() + getString(R.string.graus_celsius) + " / " + clima.getMain().getTempMinima() + getString(R.string.graus_celsius));
-                    view.getSwpDetalhes().setRefreshing(false);
-                    view.getImgClima().setImageDrawable(getResources().getDrawable(Imagens.valueOf("i" + clima.getClima().get(0).getIcone()).getImagem()));
+                    holder.getLnTudo().setVisibility(View.VISIBLE);
+                    holder.getTxtCidade().setText(clima.getNome());
+                    holder.getTxtClima().setText(clima.getClima().get(0).getDescricao());
+                    holder.getTxtTemperatura().setText(String.format(locale, "%.1f%s", clima.getMain().getTemperatura(), getString(R.string.graus_celsius)));
+                    holder.getTxtMaxMin().setText(String.format(locale, "%.1f%s / %.1f%s", clima.getMain().getTempMaxima(), getString(R.string.graus_celsius), clima.getMain().getTempMinima(), getString(R.string.graus_celsius)));
+                    holder.getSwpDetalhes().setRefreshing(false);
+                    holder.getImgClima().setImageDrawable(DetalhesActivity.this.getResources().getDrawable(Imagens.valueOf("i" + clima.getClima().get(0).getIcone()).getImagem()));
+                    SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss", locale);
+                    holder.getTxtHorario().setText(sdf.format(Calendar.getInstance().getTime()));
                 }
             }
             catch(Exception e)
