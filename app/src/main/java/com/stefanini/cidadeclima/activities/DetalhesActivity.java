@@ -1,6 +1,8 @@
 package com.stefanini.cidadeclima.activities;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -21,6 +23,8 @@ import com.stefanini.cidadeclima.classes.Cidade;
 import com.stefanini.cidadeclima.classes.Favorito;
 import com.stefanini.cidadeclima.classes.OpenWeatherJson;
 import com.stefanini.cidadeclima.classes.Singleton;
+import com.stefanini.cidadeclima.database.FavoritosDbHelper;
+import com.stefanini.cidadeclima.database.FavoritosReaderContract;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -140,10 +144,15 @@ public class DetalhesActivity extends AppCompatActivity {
                 super.onBackPressed();
                 break;
             case R.id.favorito:
+                FavoritosDbHelper dbHelper = new FavoritosDbHelper(DetalhesActivity.this);
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
                 if(favoritado) {
                     for(Favorito fav : Singleton.getInstance().getFavoritos()) {
                         if(fav.getId() == id) {
+                            String where = FavoritosReaderContract.Favorito.COLUMN_ID + " = ?";
+                            String[] args = {String.valueOf(fav.getId())};
                             Singleton.getInstance().getFavoritos().remove(fav);
+                            db.delete(FavoritosReaderContract.Favorito.TABLE_NAME, where, args);
                             menu.getItem(0).setIcon(getResources().getDrawable(R.drawable.ic_heart_outline));
                             break;
                         }
@@ -151,6 +160,10 @@ public class DetalhesActivity extends AppCompatActivity {
                 }
                 else {
                     Singleton.getInstance().addFavorito(new Favorito(id, nome));
+                    ContentValues values = new ContentValues();
+                    values.put(FavoritosReaderContract.Favorito.COLUMN_ID, id);
+                    values.put(FavoritosReaderContract.Favorito.COLUMN_NOME, nome);
+                    db.insert(FavoritosReaderContract.Favorito.TABLE_NAME, null, values);
                     menu.getItem(0).setIcon(getResources().getDrawable(R.drawable.ic_heart));
                 }
                 favoritado = !favoritado;
