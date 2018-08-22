@@ -1,0 +1,18 @@
+• Decisão da arquitetura principal e uma breve explicação do por quê foi usada.
+A arquitetura principal utilizada foi a MVC por ser mais simples para um projeto que seria codificado de forma rápida.
+
+• Lista das bibliotecas de terceiros utilizadas, e o por quê do uso de cada um.
+Foram utilizadas apenas as bibliotecas da Google: 
+ - AppCompat - compatibilidade com versões mais antigas do Android;
+ - Design - visual melhor;
+ - RecyclerView - menos gasto de memória que ListView;
+ - CardView - visual melhor;
+ - Gson - parse de json para objetos.
+• O que poderia melhorar dentro do seu código se tivesse mais tempo.
+ - Inserir uma pesquisa na tela de busca;
+ - Inserir uma imagem de fundo para o aplicativo;
+ - Melhorar o design das telas;
+ - Criar testes unitários.
+ 
+• Mencionar os pontos que não foram possíveis de entregar, e a justificativa de não ter sido entregue.
+ - Não foi possível entregar os testes unitários, pois o tempo para implementação era muito curto.
