@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.MenuItem;
 
 import com.google.gson.Gson;
@@ -21,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 
 public class BuscaActivity extends AppCompatActivity {
     private Holder holder;
@@ -67,12 +65,9 @@ public class BuscaActivity extends AppCompatActivity {
                 json += linha;
             }
             Gson gson = new Gson();
-            Log.d("BUSCAACTIVITY", "JSON: " + json);
             CidadesList list = gson.fromJson(json, CidadesList.class);
             Singleton.getInstance().setCidades(list.getCidades());
-        } catch (IOException e) {
-            Log.d("BUSCAACTIVITY", "ERRO AO LER ARQUIVO");
-        }
+        } catch (IOException ignored) {}
     }
     
     private void atualizaLista() {

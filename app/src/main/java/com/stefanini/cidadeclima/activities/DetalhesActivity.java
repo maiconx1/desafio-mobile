@@ -6,9 +6,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,9 +20,11 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.stefanini.cidadeclima.R;
 import com.stefanini.cidadeclima.classes.Cidade;
+import com.stefanini.cidadeclima.classes.Constants;
 import com.stefanini.cidadeclima.classes.Favorito;
 import com.stefanini.cidadeclima.classes.OpenWeatherJson;
 import com.stefanini.cidadeclima.classes.Singleton;
+import com.stefanini.cidadeclima.classes.Utils;
 import com.stefanini.cidadeclima.database.FavoritosDbHelper;
 import com.stefanini.cidadeclima.database.FavoritosReaderContract;
 
@@ -39,7 +41,7 @@ import java.util.Locale;
 import javax.net.ssl.HttpsURLConnection;
 
 public class DetalhesActivity extends AppCompatActivity {
-    private enum Imagens{
+    private enum Imagens {
         i01d(R.drawable.i01d), i01n(R.drawable.i01n), i02d(R.drawable.i02d), i02n(R.drawable.i02n),
         i03d(R.drawable.i03d), i03n(R.drawable.i03n), i04d(R.drawable.i04d), i04n(R.drawable.i04n),
         i09d(R.drawable.i09d), i09n(R.drawable.i09n), i10d(R.drawable.i10d), i10n(R.drawable.i10n),
@@ -74,34 +76,36 @@ public class DetalhesActivity extends AppCompatActivity {
         holder = new Holder();
 
         ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null) {
+        if (actionBar != null) {
             actionBar.setTitle(R.string.txt_detalhes);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         ids = new ArrayList<>();
 
+        pegaIntent();
+    }
+
+    private void pegaIntent() {
         Intent intent = getIntent();
-        if(intent != null) {
+        if (intent != null) {
             Gson gson = new Gson();
             Favorito favorito;
             Cidade cidade;
             String json = intent.getStringExtra("FAVORITO");
             String clima = "", temperatura = "", minMax = "";
-            if(json == null || json.isEmpty()) {
+            if (json == null || json.isEmpty()) {
                 json = intent.getStringExtra("CIDADE");
                 cidade = gson.fromJson(json, Cidade.class);
                 id = cidade.getId();
                 nome = cidade.getNome();
-            }
-            else
-            {
+            } else {
                 favorito = gson.fromJson(json, Favorito.class);
                 id = favorito.getId();
                 nome = favorito.getNome();
             }
 
-            for(Favorito fav : Singleton.getInstance().getFavoritos()) {
-                if(fav.getId() == id) {
+            for (Favorito fav : Singleton.getInstance().getFavoritos()) {
+                if (fav.getId() == id) {
                     favoritado = true;
                 }
             }
@@ -122,8 +126,18 @@ public class DetalhesActivity extends AppCompatActivity {
     }
 
     private void atualizaDetalhes() {
-        ClimaAssincrono assincrono = new ClimaAssincrono();
-        assincrono.execute("https://api.openweathermap.org/data/2.5/weather?id=" + ids.get(0) + "&appid=2bac87e0cb16557bff7d4ebcbaa89d2f&lang=pt&units=metric");// + ids);
+        if (Utils.isConectado(DetalhesActivity.this)) {
+            ClimaAssincrono assincrono = new ClimaAssincrono();
+            assincrono.execute(Constants.URL + Constants.METODO[Constants.WEATHER] + "?id=" + ids.get(0) + Constants.FINAL);
+        } else {
+            holder.getSwpDetalhes().setRefreshing(false);
+            holder.getLnTudo().setVisibility(View.GONE);
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setMessage(R.string.war_sem_conexao);
+            alert.setTitle(R.string.tit_aviso);
+            alert.setPositiveButton(R.string.txt_ok, null);
+            alert.create().show();
+        }
     }
 
     @Override
@@ -131,7 +145,7 @@ public class DetalhesActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_detalhes, menu);
         this.menu = menu;
-        if(favoritado) {
+        if (favoritado) {
             menu.getItem(0).setIcon(getResources().getDrawable(R.drawable.ic_heart));
         }
         return true;
@@ -139,16 +153,16 @@ public class DetalhesActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case android.R.id.home:
                 super.onBackPressed();
                 break;
             case R.id.favorito:
                 FavoritosDbHelper dbHelper = new FavoritosDbHelper(DetalhesActivity.this);
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
-                if(favoritado) {
-                    for(Favorito fav : Singleton.getInstance().getFavoritos()) {
-                        if(fav.getId() == id) {
+                if (favoritado) {
+                    for (Favorito fav : Singleton.getInstance().getFavoritos()) {
+                        if (fav.getId() == id) {
                             String where = FavoritosReaderContract.Favorito.COLUMN_ID + " = ?";
                             String[] args = {String.valueOf(fav.getId())};
                             Singleton.getInstance().getFavoritos().remove(fav);
@@ -157,8 +171,7 @@ public class DetalhesActivity extends AppCompatActivity {
                             break;
                         }
                     }
-                }
-                else {
+                } else {
                     Singleton.getInstance().addFavorito(new Favorito(id, nome));
                     ContentValues values = new ContentValues();
                     values.put(FavoritosReaderContract.Favorito.COLUMN_ID, id);
@@ -227,21 +240,17 @@ public class DetalhesActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            if(holder != null){
+            if (holder != null) {
                 holder.getLnTudo().setVisibility(View.GONE);
                 holder.getSwpDetalhes().setRefreshing(true);
             }
         }
 
         @Override
-        protected void onPostExecute(String s)
-        {
+        protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            Log.d("DETALHESACTIVITY", "MSG = " + s);
-            try
-            {
-                if(!s.isEmpty())
-                {
+            try {
+                if (!s.isEmpty()) {
                     Gson gson = new Gson();
                     OpenWeatherJson clima = gson.fromJson(s, OpenWeatherJson.class);
                     holder.getLnTudo().setVisibility(View.VISIBLE);
@@ -254,9 +263,7 @@ public class DetalhesActivity extends AppCompatActivity {
                     SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss", locale);
                     holder.getTxtHorario().setText(sdf.format(Calendar.getInstance().getTime()));
                 }
-            }
-            catch(Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -266,8 +273,7 @@ public class DetalhesActivity extends AppCompatActivity {
             HttpsURLConnection connection = null;
             BufferedReader reader = null;
 
-            try
-            {
+            try {
                 URL url = new URL(params[0]);
                 connection = (HttpsURLConnection) url.openConnection();
                 connection.connect();
