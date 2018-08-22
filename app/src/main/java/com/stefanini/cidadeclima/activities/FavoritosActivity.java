@@ -7,20 +7,22 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.stefanini.cidadeclima.R;
 import com.stefanini.cidadeclima.adapters.AdapterFavoritos;
+import com.stefanini.cidadeclima.classes.Constants;
 import com.stefanini.cidadeclima.classes.Favorito;
 import com.stefanini.cidadeclima.classes.ListaOpenWeather;
 import com.stefanini.cidadeclima.classes.Singleton;
+import com.stefanini.cidadeclima.classes.Utils;
 import com.stefanini.cidadeclima.database.FavoritosDbHelper;
 import com.stefanini.cidadeclima.database.FavoritosReaderContract;
 
@@ -42,7 +44,6 @@ public class FavoritosActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favoritos);
-        //Singleton.getInstance().mockFavoritos();
         holder = new Holder();
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -88,14 +89,24 @@ public class FavoritosActivity extends AppCompatActivity {
     }
 
     private void atualizaLista() {
-        holder.getSwpFavoritos().setRefreshing(true);
         holder.getLstFavoritos().setVisibility(View.GONE);
-        ClimaAssincrono assincrono = new ClimaAssincrono();
-        StringBuilder ids = new StringBuilder();
-        for(Favorito fav : favoritos) {
-            ids.append((ids.length() == 0) ? "" : ",").append(fav.getId());
+        if(Utils.isConectado(FavoritosActivity.this)) {
+            holder.getSwpFavoritos().setRefreshing(true);
+            ClimaAssincrono assincrono = new ClimaAssincrono();
+            StringBuilder ids = new StringBuilder();
+            for (Favorito fav : favoritos) {
+                ids.append((ids.length() == 0) ? "" : ",").append(fav.getId());
+            }
+            assincrono.execute(Constants.URL + Constants.METODO[Constants.GROUP] + "?id=" + ids + Constants.FINAL);
         }
-        assincrono.execute("https://api.openweathermap.org/data/2.5/group?id=" + ids + "&appid=2bac87e0cb16557bff7d4ebcbaa89d2f&lang=pt&units=metric");
+        else {
+            holder.getSwpFavoritos().setRefreshing(false);
+            AlertDialog.Builder alert  = new AlertDialog.Builder(this);
+            alert.setMessage(R.string.war_sem_conexao);
+            alert.setTitle(R.string.tit_aviso);
+            alert.setPositiveButton(R.string.txt_ok, null);
+            alert.create().show();
+        }
     }
 
     @Override
@@ -118,7 +129,6 @@ public class FavoritosActivity extends AppCompatActivity {
             atualizaLista();
         }
         else {
-            Log.d("FAVORITOSACTIVITY", "favoritos vazio");
             holder.getSwpFavoritos().setVisibility(View.GONE);
             holder.getTxtVazio().setVisibility(View.VISIBLE);
         }
@@ -165,7 +175,6 @@ public class FavoritosActivity extends AppCompatActivity {
         protected void onPostExecute(String s)
         {
             super.onPostExecute(s);
-            Log.d("FAVORITOSACTIVITY", "MSG = " + s);
             try
             {
                 if(!s.isEmpty())
@@ -195,7 +204,6 @@ public class FavoritosActivity extends AppCompatActivity {
             try
             {
                 URL url = new URL(params[0]);
-                Log.d("FAVORITOSACTIVITY", "URL = " + params[0]);
                 connection = (HttpsURLConnection) url.openConnection();
                 connection.connect();
 
